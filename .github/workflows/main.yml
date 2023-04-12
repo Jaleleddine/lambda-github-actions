@@ -19,4 +19,5 @@ jobs:
       # Build using SAM
       - run: sam build --use-container --template-file template.yaml
       # Deploy on AWS
-      - run: sam deploy --config-file samconfig.toml --no-fail-on-empty-changeset --parameter-overrides ParameterKey=MyParam,ParameterValue=${{ secrets.MyParam }}
+      - run: sam deploy --config-file samconfig.toml 
+      # --no-fail-on-empty-changeset --parameter-overrides ParameterKey=MyParam,ParameterValue=${{ secrets.MyParam }}
