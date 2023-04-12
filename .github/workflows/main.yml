@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      
 jobs:
   deploy-lambda:
     runs-on: ubuntu-latest
