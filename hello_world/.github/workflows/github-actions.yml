@@ -1,34 +1,21 @@
-name: Deploy aws lambda 
-
+name: Python application
 on:
   push:
     branches:
       - main
-
 jobs:
-  devDeployment:
-    name: dev deployment
+  deploy-lambda:
     runs-on: ubuntu-latest
-    environment:
-      name: Development
-      url: https://test.com
-    strategy:
-      matrix:
-        node-version: [14.x]
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - name: Install Plugin and Deploy
-      uses: serverless/github-action@v2
-      with:
-        args: -c "serverless plugin install --name serverless-iam-roles-per-function && serverless deploy --stage development"
-        entrypoint: /bin/sh
-      env:
-        #SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-        # or if using AWS credentials directly
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with: 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+      # Build using SAM
+      - run: sam build --use-container --template-file sam-app/template.yaml
+      # Deploy on AWS
+      - run: sam deploy --config-file sam-app/samconfig.toml --no-fail-on-empty-changeset --parameter-overrides ParameterKey=MyParam,ParameterValue=${{ secrets.MyParam }}
